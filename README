@@ -1,0 +1,2 @@
+A brief decription of the project(presently):
+	A perl program to generate an excel workbook containing formulas to compute the minimum number of computations required for multiplying a matrix chain. The algorithm used is the standard algorithm for this problem using dynamic programming. 
