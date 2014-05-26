@@ -1,57 +1,71 @@
 	use strict;
 	use Spreadsheet::XLSX;
 	use Excel::Writer::XLSX;
-	use Data::Dumper;
 
 
- 	my $file = $ARGV[0];
- 	my $excel = Spreadsheet::XLSX -> new ($file);
+ 	my $file = $ARGV[0]; # name of the input excel file to be given as argument
+ 	my $input = $ARGV[1]; # number of matrices
+
+ 	my $excel = Spreadsheet::XLSX -> new ($file); # opens the input file
 
 	if (!defined $excel) {
-	die $excel->error(), ".\n";
+		die $excel->error(), ".\n";
 	}
 
-	my $sheet = $excel -> worksheet(0);
-	my $input_text1 = ($sheet->get_cell('0','0'))->value();
-	my $input_text2 = ($sheet->get_cell('1','0'))->value();
-	my $input = ($sheet->get_cell('0','1'))->value();#number of matrices
-	my @dimensions;
+	my $sheet = $excel -> worksheet(0); # opens the default worksheet
+	my $input_text = ($sheet->get_cell('1','0'))->value();
+	
+	my @dimensions; # stores the input dimensions 
 	for(my $i = 1; $i <= $input + 1; $i++){
 		my $cell = $sheet->get_cell(1,$i);
 		$dimensions[$i] = $cell->value();
 	}
-#	print Dumper(\@dimensions);
 
-	my $workbook  = Excel::Writer::XLSX->new( $file );#name of the workbook created
-#	my $workbook  = Excel::Writer::XLSX->new( 'mat2.xlsx' );#name of the workbook created
+
+	my $workbook  = Excel::Writer::XLSX->new( $file );# creats a new excel file with name same as that of input file
 	my $worksheet = $workbook->add_worksheet();
 
 
-	my $num = 5; #number of matrices
+	my $num = $input; #number of matrices
 	my $n = $num+1;
-	# assume that A1 to A($num+1) contains the dimensions of the matrices
-	$worksheet->write( 'A1', $input_text1);
-	$worksheet->write( 'A2', $input_text2);
-	$worksheet->write_number( 'B1', $input);
+	# assume that B2 to B($n+1) contains the dimensions of the matrices
+	
+	# restores the input data in the new file
+	$worksheet->write( 'A2', $input_text); 
 	for(my $i = 1; $i <= $num + 1; $i++) {
 		$worksheet->write_number( '1',$i, $dimensions[$i]);
 	}
 
+	# fills in 0 in the diagonal
 	for(my $i = 1; $i < $n; $i++) {
 	    $worksheet->write_number( $i+3, $i-1, 0 );
 	}
 
 	my $a = ord('A');#ascii representation of A. Needed to later switch from numbers to chars
+	sub convert{
+		my $num = (shift @_);
+		my $ans = '';
+		if ($num<0) {return ''};
+		if ($num==0){
+			return 'A';
+		}
+		else{
+			return convert(int ($num / 26) -1).chr(($num%26)+$a);
+		}
+		return $ans;
+	}
+
+	# generates and fills in formulae in the upper triangle 
+	# fills in the matrices whose product is considered in the lower triangle
 	for(my $len=2; $len < $n; $len++){
 		for(my $i=1; $i < $n-$len+1; $i++){
 			my $j = $i+$len-1;
 			my $temp_formula = "=MIN(";
 			for(my $k = $i; $k <= $j-1; $k++){
-				$temp_formula = $temp_formula.chr($a+$k-1).($i+4)."+".chr($a+$j-1).($k+5)."+(".chr($a+$i)."2*".chr($a+$k+1)."2*".chr($a+$j+1)."2),";
+				$temp_formula = $temp_formula.convert($k-1).($i+4)."+".convert($j-1).($k+5)."+(".convert($i)."2*".convert($k+1)."2*".convert($j+1)."2),";
 			}
 			$temp_formula = substr($temp_formula, 0 ,-1);
 			$temp_formula = $temp_formula.")";
-			print $temp_formula . "\n";
 			$worksheet->write_formula($i+3,$j-1,$temp_formula);
 
 			my $i1 = ($i + 3) - 4;
@@ -60,6 +74,11 @@
 			my $j2 = $i1 + 0;
 			$worksheet->write($i2,$j2,"M$i..M".($i+$len-1));
 		}
+	}
+
+	# makes the cells square in shape
+	for (my $i = 0;$i < $num ;$i++){
+		$worksheet->set_row($i+4,40);
 	}
 
 $workbook->close();
