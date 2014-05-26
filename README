@@ -1,2 +1,24 @@
-A brief decription of the project(presently):
-	A perl program to generate an excel workbook containing formulas to compute the minimum number of computations required for multiplying a matrix chain. The algorithm used is the standard algorithm for this problem using dynamic programming. 
+A brief decription of the project:
+
+	A perl program to generate an excel workbook containing formulae to compute the minimum number of computations required for multiplying a matrix chain. The algorithm used is the standard algorithm for this problem using dynamic programming. 
+
+
+Steps:
+
+1. Make sure you have Spreadsheet::XLSX and Excel::Writer::XLSX modules installed along with all other dependencies.
+
+2. Run the following command in the terminal/command prompt :
+		perl matrix_mul <excel_filename> <number of matrices to be multiplied>
+		
+3. The format of the excel_file should be as follows:
+		Cells B2, B3, B4 ....... should contain the dimensions of the matrices to be multiplied. Here the B(i+1)th, B(i+2)th cell contains the dimensions of the ith matrix.
+		
+
+Result:
+
+After the running the command with appropriate input parameters, the input excel_file gets modified and a square filled with data appears.
+
+Reading the square:
+
+Pick any square inside this big square. The top right cell of it contains the minumum cost of multiplying the matrices given in the bottom left corner of this smaller square.
+		
