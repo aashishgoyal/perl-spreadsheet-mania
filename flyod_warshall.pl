@@ -1,0 +1,105 @@
+use strict;
+use Spreadsheet::XLSX;
+use Excel::Writer::XLSX;
+
+
+my $file = $ARGV[0]; # name of the input excel file to be given as argument
+my $max_vertex = $ARGV[1]; # maximum value a vertex can have in the graph, vertices can have values = 1,2,3.......
+
+my $excel = Spreadsheet::XLSX -> new ($file); # opens the input file
+
+if (!defined $excel) {
+    die $excel->error(), ".\n";
+}
+
+my $sheet = $excel -> worksheet(0); # opens the default worksheet
+
+my @vertices; # stores the input vertices
+for(my $i = 1; $i <= $max_vertex ; $i++){
+    my $cell = $sheet->get_cell(0,$i);
+    $vertices[$i-1] = $cell->value();
+}
+
+my @W; # stores the weights btw each nodes
+
+# populate the initial weight array (Use a number much larger than normal weights to represent infinity for non-existant edges)
+for(my $i = 0; $i < $max_vertex; $i++){
+    my @temp;
+    for(my $j = 0; $j < $max_vertex; $j++){
+        $temp[$j] = ($sheet->get_cell($i+1,$j+1))->value;
+    }
+    @{$W[$i]} = @temp;
+}
+
+print "@$_\n" for @W;
+my $workbook = Excel::Writer::XLSX->new( $file );# creats a new excel file with name same as that of input file
+my $worksheet = $workbook->add_worksheet();
+
+
+
+# restores the input data in the new file with some display changes
+my $format = $workbook->add_format();
+$format->set_bold();
+
+for(my $offset=0; $offset <= $max_vertex; $offset++){
+    for(my $i = 1; $i <= $max_vertex; $i++) {
+        $worksheet->write_number( $offset*($max_vertex + 3),$i, $vertices[$i-1],$format);
+        $worksheet->write_number( $i + ($offset*($max_vertex + 3)),'0', $vertices[$i-1],$format);
+    }
+}
+
+for(my $i = 0; $i < $max_vertex; $i++){
+    my @temp =  @{$W[$i]};
+    for(my $j = 0; $j < $max_vertex; $j++){
+        $worksheet->write_number($i+1,$j+1,$temp[$j]);
+    }
+    $worksheet->set_row($i + 1,43.5);
+}
+
+
+
+my $a = ord('A');#ascii representation of A. Needed to later switch from numbers to chars
+sub convert{
+    my $num = (shift @_);
+    my $ans = '';
+    if ($num<0) {return ''};
+    if ($num==0){
+        return 'A';
+    }
+    else{
+        return convert(int ($num / 26) -1).chr(($num%26)+$a);
+    }
+return $ans;
+}
+
+my $offset  = 1; # keeps the offset which helps to print the new matrix formed in a step.
+
+# generates and fills in formulae in 2-D matrices created after each step in the loop
+
+ 
+
+for(my $i=0; $i < $max_vertex; $i++){
+    for(my $j=0; $j < $max_vertex; $j++){
+        for(my $k=0; $k < $max_vertex; $k++){
+            my $temp_formula = "=MIN(". convert($k +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
+                                ",". convert($i +1).($j + (($offset-1)*($max_vertex + 3)) +2 ).
+                                "+".convert($k +1).($i + (($offset-1)*($max_vertex + 3)) +2 ).")";
+            if ($k != $j){
+                $worksheet->write_formula($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,$temp_formula);
+            }
+            else {
+                $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,0);
+            }
+
+            # if($D->[$j][$k] > ($D->[$j][$i] + $D->[$i][$k])){
+            #     $D->[$j][$k] = ($D->[$j][$i] + $D->[$i][$k]); # Minimum Weight info
+            # }
+        }
+        $worksheet->set_row($j+ ($offset*($max_vertex + 3)) + 1,43.5);
+    }
+    $offset++;
+}
+
+
+
+$workbook->close();
