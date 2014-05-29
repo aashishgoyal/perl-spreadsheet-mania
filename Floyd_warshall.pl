@@ -30,6 +30,15 @@ for(my $i = 0; $i < $max_vertex; $i++){
     }
     @{$W[$i]} = @temp;
 }
+my @P; # stores the shortest path info, all entries intiallized to -1.
+for(my $i = 0; $i < $max_vertex; $i++){
+    my @temp;
+    for(my $j = 0; $j < $max_vertex; $j++){
+        $temp[$j] = -1
+    }
+    @{$P[$i]} = @temp;
+}
+
 
 print "@$_\n" for @W;
 my $workbook = Excel::Writer::XLSX->new( $file );# creats a new excel file with name same as that of input file
@@ -41,17 +50,24 @@ my $worksheet = $workbook->add_worksheet();
 my $format = $workbook->add_format();
 $format->set_bold();
 
+my $format_color1 = $workbook->add_format(fg_color => 'pink', border   => 1,align => 'center', size => 15);
+my $format_color2 = $workbook->add_format(fg_color => 'lime',border   => 1, align => 'center', size => 15);
+
+
 for(my $offset=0; $offset <= $max_vertex; $offset++){
     for(my $i = 1; $i <= $max_vertex; $i++) {
         $worksheet->write_number( $offset*($max_vertex + 3),$i, $vertices[$i-1],$format);
         $worksheet->write_number( $i + ($offset*($max_vertex + 3)),'0', $vertices[$i-1],$format);
+        $worksheet->write_number( $offset*($max_vertex + 3),$i + $max_vertex + 5, $vertices[$i-1],$format);
+        $worksheet->write_number( $i + ($offset*($max_vertex + 3)),$max_vertex + 5, $vertices[$i-1],$format);
     }
 }
 
 for(my $i = 0; $i < $max_vertex; $i++){
     my @temp =  @{$W[$i]};
     for(my $j = 0; $j < $max_vertex; $j++){
-        $worksheet->write_number($i+1,$j+1,$temp[$j]);
+        $worksheet->write_number($i+1,$j+1,$temp[$j],$format_color1);
+        $worksheet->write_number($i+1,$j+1 + $max_vertex + 5,-1,$format_color2);
     }
     $worksheet->set_row($i + 1,43.5);
 }
@@ -81,14 +97,21 @@ my $offset  = 1; # keeps the offset which helps to print the new matrix formed i
 for(my $i=0; $i < $max_vertex; $i++){
     for(my $j=0; $j < $max_vertex; $j++){
         for(my $k=0; $k < $max_vertex; $k++){
-            my $temp_formula = "=MIN(". convert($k +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
+            my $temp_formula1 = "=MIN(". convert($k +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
                                 ",". convert($i +1).($j + (($offset-1)*($max_vertex + 3)) +2 ).
                                 "+".convert($k +1).($i + (($offset-1)*($max_vertex + 3)) +2 ).")";
+            my $temp_formula2 = "=IF(". convert($k + 1).($j+ ($offset*($max_vertex + 3)) + 2)."=".
+                                 convert($i +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
+                                "+".convert($k +1).($i + (($offset-1)*($max_vertex + 3)) +2 ).",".
+                                ($i+1).",".convert($k + 1 + $max_vertex + 5).($j + (($offset-1)*($max_vertex + 3)) +2 ) .")";
+
             if ($k != $j){
-                $worksheet->write_formula($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,$temp_formula);
+                $worksheet->write_formula($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,$temp_formula1,$format_color1);
+                $worksheet->write_formula($j+ ($offset*($max_vertex + 3)) + 1,$k + 1 + $max_vertex + 5,$temp_formula2,$format_color2);
             }
             else {
-                $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,0);
+                $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,0,$format_color1);
+                $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1 + $max_vertex + 5,-1,$format_color2);
             }
 
             # if($D->[$j][$k] > ($D->[$j][$i] + $D->[$i][$k])){
