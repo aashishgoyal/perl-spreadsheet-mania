@@ -61,6 +61,19 @@ for(my $offset=0; $offset <= $max_vertex; $offset++){
         $worksheet->write_number( $offset*($max_vertex + 3),$i + $max_vertex + 5, $vertices[$i-1],$format);
         $worksheet->write_number( $i + ($offset*($max_vertex + 3)),$max_vertex + 5, $vertices[$i-1],$format);
     }
+    if ($offset==0){
+        $worksheet->write($offset*($max_vertex + 3) + int($max_vertex/2),
+                        $max_vertex + 3,
+                        "Original state");
+    }
+    else {
+        $worksheet->write($offset*($max_vertex + 3) + int($max_vertex/2),
+                        $max_vertex + 3,
+                        $offset."th iteration");
+    }
+    $worksheet->write($offset*($max_vertex + 3),0,"Weight",$format);
+    $worksheet->write($offset*($max_vertex + 3), $max_vertex + 5,"Path",$format);
+
 }
 
 for(my $i = 0; $i < $max_vertex; $i++){
@@ -91,16 +104,13 @@ return $ans;
 my $offset  = 1; # keeps the offset which helps to print the new matrix formed in a step.
 
 # generates and fills in formulae in 2-D matrices created after each step in the loop
-
- 
-
 for(my $i=0; $i < $max_vertex; $i++){
     for(my $j=0; $j < $max_vertex; $j++){
         for(my $k=0; $k < $max_vertex; $k++){
             my $temp_formula1 = "=MIN(". convert($k +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
                                 ",". convert($i +1).($j + (($offset-1)*($max_vertex + 3)) +2 ).
                                 "+".convert($k +1).($i + (($offset-1)*($max_vertex + 3)) +2 ).")";
-            my $temp_formula2 = "=IF(". convert($k + 1).($j+ ($offset*($max_vertex + 3)) + 2)."=".
+            my $temp_formula2 = "=IF(". convert($k + 1).($j+ (($offset-1)*($max_vertex + 3)) + 2).">".
                                  convert($i +1).($j + (($offset-1)*($max_vertex + 3)) +2 ) .
                                 "+".convert($k +1).($i + (($offset-1)*($max_vertex + 3)) +2 ).",".
                                 ($i+1).",".convert($k + 1 + $max_vertex + 5).($j + (($offset-1)*($max_vertex + 3)) +2 ) .")";
@@ -113,16 +123,10 @@ for(my $i=0; $i < $max_vertex; $i++){
                 $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,0,$format_color1);
                 $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1 + $max_vertex + 5,-1,$format_color2);
             }
-
-            # if($D->[$j][$k] > ($D->[$j][$i] + $D->[$i][$k])){
-            #     $D->[$j][$k] = ($D->[$j][$i] + $D->[$i][$k]); # Minimum Weight info
-            # }
         }
         $worksheet->set_row($j+ ($offset*($max_vertex + 3)) + 1,43.5);
     }
     $offset++;
 }
-
-
 
 $workbook->close();
