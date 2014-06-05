@@ -10,32 +10,32 @@
 		# 3rd pos contains the number of rows (undef for a 1-d array)
 		# 4th pos contains the number of columns
 		my $string = (shift @_);my @ans;my $i = 0;my @pos = (0,0);
-	    while ($string =~ m!^[^\S\n\r]*my\s@(\w*);\s*#dim:(\w*)(\[(\d+)\]\[(\d+)\]|\[(\d+)\])!g ){
-	    	if ($1 eq $2){
-    			$ans[$i][0] = $1; 
-	    		if (!($4)){#if ($4 == null){
-	    			#case of 1d array
-	    			$ans[$i][4] = $6; 
-	    			$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
-	    			@pos = ($pos[0]+3,$pos[1]);
-	    		}
-	    		else{
-	    			#case of 2d array
-	    			$ans[$i][3] = $4;
-	    			$ans[$i][4] = $5;
-	    			$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
-	    			@pos = ($pos[0]+$ans[$i][3]+2,$pos[1]);
-	    		}
-	    		$i = $i+1;
-	    	}
-	    }
-	    return @ans;
+		while ($string =~ m![\n^][^\S\n\r]*my\s@(\w*);\s*#dim:(\w*)(\[(\d+)\]\[(\d+)\]|\[(\d+)\])!g ){
+			if ($1 eq $2){
+				$ans[$i][0] = $1; 
+				if (!($4)){#if ($4 == null){
+					#case of 1d array
+					$ans[$i][4] = $6; 
+					$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
+					@pos = ($pos[0]+3,$pos[1]);
+				}
+				else{
+					#case of 2d array
+					$ans[$i][3] = $4;
+					$ans[$i][4] = $5;
+					$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
+					@pos = ($pos[0]+$ans[$i][3]+2,$pos[1]);
+				}
+				$i = $i+1;
+			}
+		}
+		return @ans;
 	}
 
 #for every array in memory create a bg_array to store formulae in them
 	sub create_bg_arrays{
 		my $input = (shift @_);
-		$input =~ s!^([^\S\n\r]*)my\s@(\w*);[^\S\n\r]*\n!$1my \@$2;my \@bg_$2;\n!g;
+		$input =~ s![\n^]([^\S\n\r]*)my\s@(\w*);[^\S\n\r]*[\n\r]!\n$1my \@$2;my \@bg_$2;\n!g;
 		return $input;
 	}
 
