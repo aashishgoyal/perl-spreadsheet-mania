@@ -32,6 +32,26 @@
 		return @ans;
 	}
 
+#this function finds array assignments and adds a step to populate bg_arrays;
+	sub find_array_assignments{
+		my $input = (shift @_);my @to_swap;my $i = 0;
+		while ($input =~ m!([\n\r^]([^\S\n\r]*)(\$(\w*)(\[[^\n\r\]]*\]|\[[^\n\r\]]*\]\[[^\n\r\]]*\]))[^\S\n\r]*=([^\n\r;]*);)!g){
+			$i = $i+1;
+			$to_swap[$i][0] = $1;
+			my $string = $1;
+			$string = $string . "\n$2\$bg_$4$5 = ";
+			my $temp = $6;
+			#swap for input var;
+			$temp =~ s!\$(\w*)\[!\\\$$1\[!g;
+			$to_swap[$i][1] = $string . "\"=" . $temp . "\";";
+		}
+		while($i>0){
+			$input =~ s!\Q$to_swap[$i][0]!$to_swap[$i][1]!;
+			$i = $i-1;
+		}
+		return $input;
+	}
+
 #for every array in memory create a bg_array to store formulae in them
 	sub create_bg_arrays{
 		my $input = (shift @_);
