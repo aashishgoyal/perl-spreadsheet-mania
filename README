@@ -38,5 +38,17 @@ Objective:
 To achieve the for the time being we make some assumptions regarding the scripts that will be accepted.
 1)Convention=> after declaring array, immediately follow it with a dubious value indicator so that its dimensions can be percieved. If no such declaration, it will be considered temporary.
 2)Assume program arrays only manipulate numbers
+More assumptions that have been made need to be documented.
 
-The idea is to take the program create additional arrays for every array used in the program, such that these will contain the required excel formulae which will be written to the excel file at the end
+There were two approaches to the problem
+a) To build sort of a parser for perl.
+	Here we try to understand the logic of the input program and output a program to generate the corresponding excel file.
+	Such a parser would (of course) implement only a small portion of the program and thereby limiting the possible inputs.
+b) Another idea which has been tried to be implemented is to understand what the program does in the array assignment stage.
+	A new file containing the previous code is created but with additional code in between and at the ends which handles the generation of the excel formula
+
+
+
+As of now the second approach has found some success indeed.
+It is able to generate the correct output file for programs which do not have self referential loops. e.g test.pl
+
