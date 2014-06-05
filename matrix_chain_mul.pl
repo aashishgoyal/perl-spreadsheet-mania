@@ -43,6 +43,7 @@
 
 	my $a = ord('A');#ascii representation of A. Needed to later switch from numbers to chars
 	sub convert{
+		my $a = ord('A');
 		my $num = (shift @_);
 		my $ans = '';
 		if ($num<0) {return ''};
