@@ -33,19 +33,16 @@ Part-II
 Part-III
 
 Objective:
-	To read a perl script that implements the above alogrithms an manipulate them to create excel programs from these.
+	To read a perl script that implements the above alogrithms and manipulate them to create excel programs from these.
 
-To achieve the for the time being we make some assumptions regarding the scripts that will be accepted.
-1)Convention=> after declaring array, immediately follow it with a dubious value indicator so that its dimensions can be percieved. If no such declaration, it will be considered temporary.
+To achieve this, for the time being we make some assumptions regarding the scripts that will be accepted.
+1)Convention=> after declaring array, immediately follow it with a dubious value indicator so that its dimensions can be percieved. If no such declaration, it will be considered temporary array.
 2)Assume program arrays only manipulate numbers
 More assumptions that have been made need to be documented.
 
 There were two approaches to the problem
-a) To build sort of a parser for perl.
-	Here we try to understand the logic of the input program and output a program to generate the corresponding excel file.
-	Such a parser would (of course) implement only a small portion of the program and thereby limiting the possible inputs.
-b) Another idea which has been tried to be implemented is to understand what the program does in the array assignment stage.
-	A new file containing the previous code is created but with additional code in between and at the ends which handles the generation of the excel formula
+a) To build sort of a parser for perl. Here we try to understand the logic of the input program and output a program to generate the corresponding excel file. Such a parser would (of course) implement only a small portion of the program and thereby severly limit the possible programs that can be accepted.
+b) Another idea which has been tried to be implemented is to understand what the program does in the array assignment stage. A new file containing the previous code is created but with additional code in between and at the ends which handles the generation of the excel formulae.
 
 
 
