@@ -47,15 +47,15 @@ b) Another idea which has been tried to be implemented is to understand what the
 
 
 As of now the second approach has found some success indeed.
-It is able to generate the correct output file for programs which do not have self referential loops. e.g test.pl
+It is able to generate the correct output file for some programs. e.g test.pl, matrix.pl
 
 Instructions to test code:
 1) Ensure that all libraries are installed.
-2) Download test.pl and part_3_functions.pl in same dir
-3) Run part_3_funcions.pl(As of now the name of input file is hard-coded)
-4) This creates test_out.pl in same dir. Run this to get excel file(and compare its source code).
+2) Download test.pl/mat.pl and part_3_functions.pl in same dir
+3) Run:- perl part_3_funcions.pl <name_of_input_filename> <any_name_output_file_should_have>
+4) This creates a file in same dir. Run this to get excel file(and compare its source code).
 5) The excel file does not initialize values but formulae in appropriate columns are present.
-6) Input values in test.pl may be changed but the important thing is the size declaration of the arrays in comments, both of which must be changed appropriately.
+6) Input values in test.pl/matrix.pl may be changed but the important thing is the size declaration of the arrays in comments, both of which must be changed appropriately.
 
 
 
