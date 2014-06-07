@@ -1,5 +1,6 @@
 #use strict;
 use Data::Dumper;
+#headers that need to copied to generated file
 my $headers = << 'END_MESSAGE';
 
 
@@ -10,6 +11,7 @@ my $headers = << 'END_MESSAGE';
 	my $workbook = Excel::Writer::XLSX->new($file);
 	my $worksheet = $workbook->add_worksheet();
 END_MESSAGE
+#subroutines needed by generated file to create excel formulae at runtime
 my $subroutines = << 'END_SUB';
 
 
@@ -55,6 +57,7 @@ my $subroutines = << 'END_SUB';
 	}
 END_SUB
 
+	#main script of the program
 	my $filename = $ARGV[0];
 	my $filevar = "";
 	open(my $fh, '<:encoding(UTF-8)', $filename) or die "Could not open file '$filename' $!";
@@ -72,7 +75,11 @@ END_SUB
 	open(my $f1h, '>', $output_file) or die "Could not open file '$output_file' $!";
 	print $f1h $filevar;
 	close $f1h;
+	#script ends
 
+	#this function takes a file as input and then finds the arrays which are declared as per the convention
+	#the array name and its dimensions are stored in an array. Also the subroutine determines the starting row and 
+	# column of the arrays on the basis of array dimensions and stores them in the array which is finally returned
 	sub find_array{
 		# 0th pos constains the name of array
 		# 1st pos contains the x pos(or row) of first cell
@@ -101,6 +108,10 @@ END_SUB
 		}
 		return \@ans;
 	}
+	
+	#this function takes a file as input and locates each array assignment and appends this with an additonal
+	#statement to store the stringified version of the assignment in bg_<array_name>, which is an array the program
+	#shall use to store excel formulae
 	sub find_array_assignments{
 		my $input = (shift @_);my @to_swap;my $i = 0;
 		while ($input =~ m!([\n\r^]([^\S\n\r]*)(\$(\w*)(\[[^\n\r\]]*\]|\[[^\n\r\]]*\]\[[^\n\r\]]*\]))[^\S\n\r]*=([^\n\r;]*);)!g){
@@ -121,6 +132,9 @@ END_SUB
 		}
 		return $input;
 	}
+	
+	#this function adds loops at the end of the script which make some corrections to the formulae and then write
+	#them into the excel sheet
 	sub add_excel_funcs{
 		my $input = (shift @_);
 		my $output = "";
@@ -146,6 +160,8 @@ END_SUB
 		return $output . "\n\$workbook->close();\n";
 	}
 
+	#the role of this function is to correct the formulae or interpolate the position of cells
+	#e.g. "=add($input[2]),$input[5])" -> "=add(A3,A6)"
 	sub to_excel_pos{#expects a ref to array names and a string to excelify
 		my $input = (shift @_);my $string = shift @_;
 		while($string =~ m!\$(\w*)\[([^\]]+)\]\[([^\]]+)\]!g){
@@ -164,11 +180,16 @@ END_SUB
 		}
 		return $string;
 	}
+	
+	#takes a file as input. for every array declared in the file, creates a bg_<array_name> array which will store
+	#the corresponding excel values
 	sub create_bg_arrays{#expects a string to operate on
 		my $input = (shift @_);
 		$input =~ s![\n^]([^\S\n\r]*)my\s@(\w*);[^\S\n\r]*[\n\r]!\n$1my \@$2;my \@bg_$2;\n!g;
 		return $input;
 	}
+	
+	#a simple function to remove comments from input
 	sub comment_gobbler{#eats up comments from input
 		my $string = (shift @_);my $ans;
 		while ($string =~ m!([^#\n]*)(#[^\n]*\n)|([^#\n]*\n)!g){
@@ -177,6 +198,9 @@ END_SUB
 		}
 		return $ans;
 	}
+	
+	#function that gives the index of an array contained in the input program, given the array name and the array 
+	#returned by find_arrays
 	sub get_index{#expects a ref to array names and a name whose index is to be found
 		my $input = shift (@_);my $name = shift (@_);my $i = 0;
 		while(defined $$input[$i][0]){
@@ -186,6 +210,8 @@ END_SUB
 		my $empty_val;
 		return $empty_val;#if no match return an empty variable;
 	}
+	
+	#converts numbers to column names
 	sub convert{
 		my $a = ord('A');
 		my $num = (shift @_);
