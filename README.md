@@ -53,11 +53,11 @@ It is able to generate the correct output file for some programs. e.g test.pl, m
 **Instructions to test code:**
 
 1. Ensure that all libraries are installed.
-2. Download test.pl/mat.pl and part_3_functions.pl in same dir
-3. Run:- perl part_3_funcions.pl <name_of_input_filename> <any_name_output_file_should_have>
-4. This creates a file in same dir. Run this to get excel file(and compare its source code).
-5. The excel file does not initialize values but formulae in appropriate columns are present.
-6. Input values in test.pl/matrix.pl may be changed but the important thing is the size declaration of the arrays in comments, both of which must be changed appropriately.
+2. Download `test.pl`/`mat.pl` and `part_3_functions.pl` in same dir
+3. Run:- `perl part_3_funcions.pl <name of input filename> <any name output script should_have>`.
+4. This creates a perl script in the same directory. Run this script to get excel file(Compare the source code of this script with the orginal input perl script to understand what `part_3_functions.pl` actually did.).
+5. The excel file does not contain initialized values but formulae in appropriate columns are present.
+6. Input values in `test.pl`/`matrix.pl` may be changed but the important thing is the size declaration of the arrays in comments, both of which must be changed appropriately.
 
 
 
