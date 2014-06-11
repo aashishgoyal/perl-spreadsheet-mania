@@ -59,7 +59,7 @@ e.g. `perl part_3_functions.pl matrix.pl output.pl`
 4. This creates a perl script in the same directory. (Compare the source code of this script with the orginal input perl script to understand what `part_3_functions.pl` actually did.)
 5. Run this script to get the excel file.
 e.g. `perl output.pl`
-6. The name of excel file is hard-coded for now (output.xlxs). It does not contain initialized values but formulae in appropriate columns are present.
+6. The name of excel file is hard-coded for now (`output.xlsx`). It does not contain initialized values but formulae in appropriate columns are present.
 7. Input values in `test.pl`/`matrix.pl` may be changed but the important thing is the size declaration of the arrays in comments, both of which must be changed appropriately.
 
 
