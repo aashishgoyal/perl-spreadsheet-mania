@@ -26,7 +26,28 @@ Pick any square inside this big square. The top right cell of it contains the mi
 		
 ### Part-II : Floyd-Warshall algorithm
 
-...to be documented
+**A brief decription of the project:**
+
+A perl program to generate an excel workbook containing formulae to compute the minimum distance and the shortest path as computed by the Flyod-Warshall algorithm, given an input graph within predefined format.
+
+**Steps:**
+
+1. Make sure you have Spreadsheet::XLSX and Excel::Writer::XLSX modules installed along with all other dependencies.
+
+2. Run the following command in the terminal/command prompt :
+		perl matrix_mul <excel_filename> <number of vertices in the graph>
+		
+3. The format of the excel_file should be as follows:
+		Cells B(i+1), B(i+2), B(i+3) ... should contain the weight of the path from vertex "1" to the vertex "i".
+		Similarly, cells C(i+1), C(i+2), C(i+3) ... should contain the weight of the path from vertex "2" to the vertex "i". And so on...The entire graph is represented in this particular manner.
+
+**Result:**
+
+After the running the command with appropriate input parameters, the input excel_file gets modified.
+
+**Reading the output file:**
+
+A series of squares appears on the right side and on the left side. The ith square in this series on each side represents the state of weight matrix and that of path matrix after ith iteration in the Flyod-Warshall algorithm. The cells has italics and highlighted data if it gets changed through the ith iteration. 
 
 ### Part-III : Transforming an input perl script
 
@@ -53,7 +74,7 @@ It is able to generate the correct output file for some programs. e.g test.pl, m
 **Instructions to test code:**
 
 1. Ensure that all libraries are installed.
-2. Download `test.pl`/`mat.pl` and `part_3_functions.pl` in same dir
+2. Download `test.pl`/`matrix.pl` and `part_3_functions.pl` in same dir
 3. Run:- `perl part_3_funcions.pl <name of input filename> <any name output script should have>`.
 e.g. `perl part_3_functions.pl matrix.pl output.pl`
 4. This creates a perl script in the same directory. (Compare the source code of this script with the orginal input perl script to understand what `part_3_functions.pl` actually did.)
