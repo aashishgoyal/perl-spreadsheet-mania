@@ -52,6 +52,7 @@ $format->set_bold();
 
 my $format_color1 = $workbook->add_format(fg_color => 'pink', border   => 1,align => 'center', size => 15);
 my $format_color2 = $workbook->add_format(fg_color => 'lime',border   => 1, align => 'center', size => 15);
+my $change_format = $workbook->add_format(bold => 1, italic => 1, color    => '#9C0006');
 
 
 for(my $offset=0; $offset <= $max_vertex; $offset++){
@@ -89,7 +90,7 @@ for(my $i = 0; $i < $max_vertex; $i++){
 
 my $a = ord('A');#ascii representation of A. Needed to later switch from numbers to chars
 sub convert{
-	my $a = ord('A');
+    my $a = ord('A');
     my $num = (shift @_);
     my $ans = '';
     if ($num<0) {return ''};
@@ -124,6 +125,14 @@ for(my $i=0; $i < $max_vertex; $i++){
                 $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1,0,$format_color1);
                 $worksheet->write_number($j+ ($offset*($max_vertex + 3)) + 1,$k + 1 + $max_vertex + 5,-1,$format_color2);
             }
+                $worksheet->conditional_formatting(convert($k + 1).($j+ ($offset*($max_vertex + 3)) + 2),
+                {
+                    type => 'cell',
+                    criteria => '<>',
+                    value => '$'.convert($k+1).'$'.($j + (($offset-1)*($max_vertex + 3)) +2 ),
+                    format => $change_format
+                }
+                );
         }
         $worksheet->set_row($j+ ($offset*($max_vertex + 3)) + 1,43.5);
     }
