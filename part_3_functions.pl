@@ -37,8 +37,15 @@ my $subroutines = << 'END_SUB';
 		my $empty_val;
 		return $empty_val;#if no match return an empty variable;
 	}
-	sub to_excel_pos{#expects a ref to array names and a string to excelify
+		sub to_excel_pos{#expects a ref to array names and a string to excelify
 		my $input = (shift @_);my $string = shift @_;
+		while($string =~ m!\$(\w*)\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]!g){
+			if (defined get_index($input,$1)){
+				my $index = get_index($input,$1);
+				my $temp = convert($$input[$index][2]+eval($4)).($$input[$index][1]+eval($3) + eval($2)*($$input[$index][3]+3)+1);
+				$string =~ s!\$$1\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]!$temp!;
+			}
+		}
 		while($string =~ m!\$(\w*)\[([^\]]+)\]\[([^\]]+)\]!g){
 			if (defined get_index($input,$1)){
 				my $index = get_index($input,$1);
@@ -53,6 +60,7 @@ my $subroutines = << 'END_SUB';
 				$string =~ s!\$$1\[([^\]]+)\]!$temp!;
 			}
 		}
+		# 3rd while loop
 		return $string;
 	}
 END_SUB
@@ -86,23 +94,35 @@ END_SUB
 		# 2nd pos contains the y pos(or col) of first cell
 		# 3rd pos contains the number of rows (undef for a 1-d array)
 		# 4th pos contains the number of columns
+		# 5th pos contains the third dimension (only valid for a 3-d array)
 		my $string = (shift @_);my @ans;my $i = 0;my @pos = (0,0);
-		while ($string =~ m![\n^][^\S\n\r]*my\s@(\w*);\s*#dim:(\w*)(\[(\d+)\]\[(\d+)\]|\[(\d+)\])!g ){
-			if ($1 eq $2){
+		while ($string =~ m![\n^][^\S\n\r]*my\s@(\w*);\s*#dim:(\w*)(\[(\d+)\]\[(\d+)\]\[(\d+)\]|\[(\d+)\]\[(\d+)\]|\[(\d+)\])!g ){
+			if ($1 eq $2){ 
 				$ans[$i][0] = $1; 
-				if (!(defined $4)){#if (!($4)){#$4 == null
+				if (!(defined $4)){
+					if (!(defined $7)){#if (!($4)){#$4 == null
 					#case of 1d array
-					$ans[$i][4] = $6; 
-					$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
-					@pos = ($pos[0]+3,$pos[1]);
+						$ans[$i][4] = $9; 
+						$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
+						@pos = ($pos[0]+3,$pos[1]);
+					}
+					else{
+					#case of 2d array
+						$ans[$i][3] = $7;
+						$ans[$i][4] = $8;
+						$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
+						@pos = ($pos[0]+$ans[$i][3]+2,$pos[1]);
+					}
 				}
 				else{
-					#case of 2d array
-					$ans[$i][3] = $4;
-					$ans[$i][4] = $5;
+					#case of 3d array
+					$ans[$i][3] = $5;
+					$ans[$i][4] = $6;
+					$ans[$i][5] = $4;
 					$ans[$i][1] = $pos[0]; $ans[$i][2] = $pos[1];
-					@pos = ($pos[0]+$ans[$i][3]+2,$pos[1]);
-				}
+					@pos = ($pos[0],$pos[1]+(($ans[$i][4] +3)));
+
+				}	
 				$i = $i+1;
 			}
 		}
@@ -114,7 +134,8 @@ END_SUB
 	#shall use to store excel formulae
 	sub find_array_assignments{
 		my $input = (shift @_);my @to_swap;my $i = 0;
-		while ($input =~ m!([\n\r^]([^\S\n\r]*)(\$(\w*)(\[[^\n\r\]]*\]|\[[^\n\r\]]*\]\[[^\n\r\]]*\]))[^\S\n\r]*=([^\n\r;]*);)!g){
+		while ($input =~ m!([\n\r^]([^\S\n\r]*)(\$(\w*)(\[[^\n\r\]]*\]|\[[^\n\r\]]*\]\[[^\n\r\]]*\]|\[[^\n\r\]]*\]\[[^\n\r\]]*\]\[[^\n\r\]]*\]))[^\S\n\r]*=([^\n\r;]*);)!g){
+			# change the regex
 			$i = $i+1;
 			$to_swap[$i][0] = $1;
 			my $string = $1;
@@ -140,22 +161,37 @@ END_SUB
 		my $output = "";
 		for (my $j = 0;defined $$input[$j][0];$j++){
 			my $name = $$input[$j][0];
-			if(!(defined $$input[$j][3])){
-				$output = $output . "\n" .
-				"	for(my \$i = 0; \$i < \$\$arrays[$j][4];\$i++){" . 
-				"\n		\$bg_$name\[\$i\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]);".
-				"\n		\$worksheet->write($$input[$j][1], $$input[$j][2]+\$i,\"=\".\$bg_$name\[\$i\]);".
-				"\n	}";
+			if (!(defined $$input[$j][5])){
+				if(!(defined $$input[$j][3])){
+					$output = $output . "\n" .
+					"	for(my \$i = 0; \$i < \$\$arrays[$j][4];\$i++){" . 
+					"\n		\$bg_$name\[\$i\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]);".
+					"\n		\$worksheet->write($$input[$j][1], $$input[$j][2]+\$i,\"=\".\$bg_$name\[\$i\]);".
+					"\n	}";
+				}
+				else{
+					$output = $output . "\n" .
+					"	for(my \$i = 0; \$i < \$\$arrays[$j][3];\$i++){"."\n".
+					"		for(my \$k = 0; \$k < \$\$arrays[$j][4];\$k++){" . 
+					"\n			\$bg_$name\[\$i\]\[\$k\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]\[\$k\]);".
+					"\n			\$worksheet->write($$input[$j][1]+\$i, $$input[$j][2]+\$k,\"=\".\$bg_$name\[\$i\]\[\$k\]);".
+					"\n		}".
+					"\n	}";
+				}
 			}
 			else{
 				$output = $output . "\n" .
-				"	for(my \$i = 0; \$i < \$\$arrays[$j][3];\$i++){"."\n".
-				"		for(my \$k = 0; \$k < \$\$arrays[$j][4];\$k++){" . 
-				"\n			\$bg_$name\[\$i\]\[\$k\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]\[\$k\]);".
-				"\n			\$worksheet->write($$input[$j][1]+\$i, $$input[$j][2]+\$k,\"=\".\$bg_$name\[\$i\]\[\$k\]);".
+				"	for(my \$i = 0; \$i < \$\$arrays[$j][5];\$i++){"."\n".
+				"		for(my \$j_ = 0; \$j_ < \$\$arrays[$j][4];\$j_++){" . "\n".
+				"			for(my \$k = 0; \$k < \$\$arrays[$j][3];\$k++){".
+				"\n				\$bg_$name\[\$i\]\[\$j_\]\[\$k\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]\[\$j_\]\[\$k\]);".
+				"\n				\$worksheet->write($$input[$j][1]+\$j_ + \$i * (\$\$arrays[$j][3] + 3), $$input[$j][2]+\$k,\"=\".\$bg_$name\[\$i\]\[\$j_\]\[\$k\]);".
+				"\n 		}".
 				"\n		}".
 				"\n	}";
+
 			}
+			# 3rd case (which position to write)
 		}
 		return $output . "\n\$workbook->close();\n";
 	}
@@ -164,6 +200,13 @@ END_SUB
 	#e.g. "=add($input[2]),$input[5])" -> "=add(A3,A6)"
 	sub to_excel_pos{#expects a ref to array names and a string to excelify
 		my $input = (shift @_);my $string = shift @_;
+		while($string =~ m!\$(\w*)\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]!g){
+			if (defined get_index($input,$1)){
+				my $index = get_index($input,$1);
+				my $temp = convert($$input[$index][2]+eval($4)).($$input[$index][1]+eval($3) + eval($2)*($$input[$index][3]+3)+1);
+				$string =~ s!\$$1\[([^\]]+)\]\[([^\]]+)\]\[([^\]]+)\]!$temp!;
+			}
+		}
 		while($string =~ m!\$(\w*)\[([^\]]+)\]\[([^\]]+)\]!g){
 			if (defined get_index($input,$1)){
 				my $index = get_index($input,$1);
@@ -178,6 +221,7 @@ END_SUB
 				$string =~ s!\$$1\[([^\]]+)\]!$temp!;
 			}
 		}
+		# 3rd while loop
 		return $string;
 	}
 	
@@ -226,3 +270,8 @@ END_SUB
 		return $ans;
 	}
 
+
+
+# input values of the for loop not considered
+# what is var1
+# find_array_assignments not working
