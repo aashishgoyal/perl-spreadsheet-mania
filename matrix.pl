@@ -1,4 +1,4 @@
-#matric chain multiplication perl version.
+#matrix chain multiplication perl version.
 
 use Data::Dumper;
 
