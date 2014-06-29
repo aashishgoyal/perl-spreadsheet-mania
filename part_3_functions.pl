@@ -7,7 +7,14 @@ my $headers = << 'END_MESSAGE';
 	##### EXCEL WRITER PORTION STARTS #####
 
 	use Excel::Writer::XLSX;
-	my $file = "output.xlsx";
+
+	#generate an xlsm file if macros are provided, otherwise an xlsx file
+	my $file;
+	if ((defined $ARGV[0]) && (defined $ARGV[1])){
+		$file = "output.xlsm";
+	} else{
+		$file = "output.xlsx";
+	}
 	my $workbook = Excel::Writer::XLSX->new($file);
 	my $worksheet = $workbook->add_worksheet();
 END_MESSAGE
@@ -193,7 +200,14 @@ END_SUB
 			}
 			# 3rd case (which position to write)
 		}
-		return $output . "\n\$workbook->close();\n";
+		my $macro_addition = "\n".
+			"\$macro = \$ARGV[0];\n".
+			"\$macro_handler = \$ARGV[1];\n".
+			"if((defined \$macro) && (defined \$macro_handler)){\n".
+			"	do \$macro_handler;\n".
+			"	add_macro(\$macro, \$workbook, \$worksheet)\n".
+			"}\n";
+		return $output . $macro_addition ."\n\$workbook->close();\n";
 	}
 
 	#the role of this function is to correct the formulae or interpolate the position of cells
@@ -269,9 +283,3 @@ END_SUB
 		}
 		return $ans;
 	}
-
-
-
-# input values of the for loop not considered
-# what is var1
-# find_array_assignments not working
