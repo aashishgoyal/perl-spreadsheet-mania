@@ -25,20 +25,22 @@
 	my $workbook  = Excel::Writer::XLSX->new( $file );# creats a new excel file with name same as that of input file
 	my $worksheet = $workbook->add_worksheet();
 
+	my $format_color1 = $workbook->add_format(fg_color => 'pink',border   => 1, align => 'center', size => 13);
+	my $format_color2 = $workbook->add_format(fg_color => 'lime',border   => 1, bold => 1, italic => 1);
 
 	my $num = $input; #number of matrices
 	my $n = $num+1;
 	# assume that B2 to B($n+1) contains the dimensions of the matrices
 
 	# restores the input data in the new file
-	$worksheet->write( 'A2', $input_text); 
+	$worksheet->write( 'A2', $input_text, $format_color2); 
 	for(my $i = 1; $i <= $num + 1; $i++) {
-		$worksheet->write_number( '1',$i, $dimensions[$i]);
+		$worksheet->write_number( '1', $i, $dimensions[$i], $format_color2);
 	}
 
 	# fills in 0 in the diagonal
 	for(my $i = 1; $i < $n; $i++) {
-	    $worksheet->write_number( $i+3, $i-1, 0 );
+	    $worksheet->write_number( $i+3, $i-1, 0 , $format_color1);
 	}
 
 	my $a = ord('A');#ascii representation of A. Needed to later switch from numbers to chars
@@ -67,13 +69,13 @@
 			}
 			$temp_formula = substr($temp_formula, 0 ,-1);
 			$temp_formula = $temp_formula.")";
-			$worksheet->write_formula($i+3,$j-1,$temp_formula);
+			$worksheet->write_formula($i+3,$j-1,$temp_formula, $format_color1);
 
 			my $i1 = ($i + 3) - 4;
 			my $j1 = ($j - 1) - 0;
 			my $i2 = $j1 + 4;
 			my $j2 = $i1 + 0;
-			$worksheet->write($i2,$j2,"M$i..M".($i+$len-1));
+			$worksheet->write($i2,$j2,"M$i..M".($i+$len-1), $format_color1);
 		}
 	}
 
