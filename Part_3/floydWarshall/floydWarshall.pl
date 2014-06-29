@@ -1,4 +1,4 @@
-#matric chain multiplication perl version.
+#floyd warshall algorithm: perl version.
 
 use Data::Dumper;
 
