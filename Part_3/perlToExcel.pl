@@ -83,6 +83,7 @@ END_SUB
 	$filevar = comment_gobbler($filevar);
 	$filevar = create_bg_arrays($filevar);
 	$filevar = find_array_assignments($filevar);
+	$filevar = find_arrayvalue_assignments($filevar);
 	$filevar = $filevar . $headers . $arrays . "\nmy \$arrays = \$VAR1;\n" . add_excel_funcs($input) . $subroutines;
 	$filevar =~ s/^\s+|\s+$//g;
 
@@ -153,6 +154,27 @@ END_SUB
 			$temp =~ s!\$(\w*)\[!\\\$$1\[!g;
 			$temp =~ s!\\\$($to_write)!\(\$bg_$1\)!g;
 			$to_swap[$i][1] = $string . "\"" . $temp . "\";";
+		}
+		while($i>0){
+			$input =~ s!\Q$to_swap[$i][0]!$to_swap[$i][1]!;
+			$i = $i-1;
+		}
+		return $input;
+	}
+	
+	#this function takes a file as input and locates each array assignment and appends this with an additonal
+	#statement to store the stringified version of the assignment in bg_<array_name>, which is an array the program
+	#shall use to store excel formulae
+	sub find_arrayvalue_assignments{
+		my $input = (shift @_);my @to_swap;my $i = 0;
+		while ($input =~ m!([\n\r^]([^\S\n\r]*)(\@(\w*))[^\S\n\r]*=([^;]*);)!g){
+			# change the regex
+			$i = $i+1;
+			$to_swap[$i][0] = $1;
+			my $string = $1;
+			$string = $string . "\n$2\@bg_$4 = $5 ;";
+
+			$to_swap[$i][1] = $string ;
 		}
 		while($i>0){
 			$input =~ s!\Q$to_swap[$i][0]!$to_swap[$i][1]!;
