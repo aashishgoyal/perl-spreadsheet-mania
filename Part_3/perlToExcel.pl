@@ -211,8 +211,8 @@ END_SUB
 			else{
 				$output = $output . "\n" .
 				"	for(my \$i = 0; \$i < \$\$arrays[$j][5];\$i++){"."\n".
-				"		for(my \$j_ = 0; \$j_ < \$\$arrays[$j][4];\$j_++){" . "\n".
-				"			for(my \$k = 0; \$k < \$\$arrays[$j][3];\$k++){".
+				"		for(my \$j_ = 0; \$j_ < \$\$arrays[$j][3];\$j_++){" . "\n".
+				"			for(my \$k = 0; \$k < \$\$arrays[$j][4];\$k++){".
 				"\n				\$bg_$name\[\$i\]\[\$j_\]\[\$k\] = to_excel_pos(\$arrays,\$bg_$name\[\$i\]\[\$j_\]\[\$k\]);".
 				"\n				\$worksheet->write($$input[$j][1]+\$j_ + \$i * (\$\$arrays[$j][3] + 3), $$input[$j][2]+\$k,\"=\".\$bg_$name\[\$i\]\[\$j_\]\[\$k\]);".
 				"\n 		}".
