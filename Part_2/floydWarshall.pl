@@ -39,10 +39,10 @@ for(my $i = 0; $i < $max_vertex; $i++){
     @{$P[$i]} = @temp;
 }
 
+
 if ((defined $ARGV[2]) && (defined $ARGV[3])){
     $file = "output.xlsm";
 }
-
 print "@$_\n" for @W;
 my $workbook = Excel::Writer::XLSX->new( $file );# creats a new excel file with name same as that of input file
 my $worksheet = $workbook->add_worksheet();
@@ -142,13 +142,12 @@ for(my $i=0; $i < $max_vertex; $i++){
     $offset++;
 }
 
-if ((defined $ARGV[2]) && (defined $ARGV[3])){
-    my $macro = $ARGV[2];
-    my $macro_handler = $ARGV[3];
-    if((defined $macro) && (defined $macro_handler)){
-        do $macro_handler;
-        add_macro($macro, $workbook, $worksheet)
-    }
+my $macro = $ARGV[2];
+my $macro_handler = $ARGV[3];
+if((defined $macro) && (defined $macro_handler)){
+    do $macro_handler;
+    add_macro($macro, $workbook, $worksheet)
 }
+
 
 $workbook->close();
