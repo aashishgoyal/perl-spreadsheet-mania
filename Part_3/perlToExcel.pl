@@ -305,3 +305,123 @@ END_SUB
 		}
 		return $ans;
 	}
+
+
+=pod
+
+=head1 NAME
+
+SCRIPT TO AUGMENT PERL CODE TO GENERATE EXCEL IMPLEMENTATION OF CODE
+
+=head1 SYNOPSIS
+
+This script takes a file as an argument and augments it.
+
+Consider the following example.
+	
+=over 12
+
+=item C<perl perlToExcel.pl example.pl output.pl>
+
+The script reads in example.pl and generates output.pl as the output. 
+
+=item C<perl output.pl>
+
+Now perl executes output.pl. This generates the output xlsx file which 
+contains the formulae implemeting the algorithm.
+
+=back 
+
+The files included with this include floydWarshall.pl, gausElem.pl and matrixChain.pl 
+which implement the floyd warshall, gaussain elimination and the matrix chain multiplication 
+algorithms repectively. Also provided are the sample outputs that the perlToExcel generates.
+
+Additionally the script also supports adding macros to the generated script so that it 
+generates visual effects. This requires an appropriate macro which will vary with the algorithm
+and a helper function which specifies where the buttons must be place and how must the macros be
+used.
+
+To do so, simply in the second step change run
+
+	"perl output.pl samplemacro.bin macrohelper.pl"
+
+Make sure you have Spreadsheet::XLSX and Excel::Writer::XLSX modules installed as they are required dependencies.
+
+=head1 DESCRIPTION
+
+This perl program is a way to generate excel formulas for algorithms which involve array manipulation.
+It finds the sections where the array assignment is done and then converts them such corresponding excel
+formulae are stored in an array. These formulae are then written to the excel file.
+
+=head2 Methods
+
+=over 12
+
+=item C<find_array>
+
+This function takes a file as input and then finds the arrays which are declared as per the convention
+The array name and its dimensions are stored in an array. Also the subroutine determines the starting row and 
+column of the arrays(in the excel sheet) on the basis of array dimensions and stores them in the array 
+which is finally returned.
+	0th pos constains the name of array
+	1st pos contains the x pos(or row) of first cell
+	2nd pos contains the y pos(or col) of first cell
+	3rd pos contains the number of rows (undef for a 1-d array)
+	4th pos contains the number of columns
+	5th pos contains the third dimension (only valid for a 3-d array)
+
+=item C<find_array_assignments> 
+
+This function takes a file as input and locates each array assignment and appends this with an additonal
+statement to store the stringified version of the assignment in bg_<array_name>, which is an array the program
+shall use to store excel formulae
+
+=item C<find_arrayvalue_assignments> 
+
+This function takes a file as input and locates value assignment for each array and adds this with an additonal
+statement to assign bg_<array_name> the same values assigned to the respective array.
+
+=item C<add_excel_funcs> 
+
+This function adds loops at the end of the script which makes some corrections to the formulae and then write
+them into the excel sheet
+
+=item C<to_excel_pos>
+
+The role of this function is to correct the formulae / interpolate the position of cells
+e.g. "=add($input[2]),$input[5])" -> "=add(A3,A6)"
+
+=item C<create_bg_arrays>
+
+Takes a file as input. for every array declared in the file, creates a bg_<array_name> array which will store
+the corresponding excel values
+
+=item C<comment_gobbler>
+
+a simple function to remove comments from input
+
+=item C<get_index>
+
+Function that gives the index of an array contained in the input program, given the array name and the array 
+returned by find_arrays
+
+=item C<convert>
+
+converts numbers to column names
+
+=back
+
+You may change the dimensions of the arrays and the script will regenerate the excel with the appropriate
+formulae
+
+=head1 AUTHOR
+
+=over 5
+
+=item C<Aashish Goyal>
+
+=item C<Poojan Mehta>
+
+=back
+
+=cut
