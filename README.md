@@ -35,10 +35,12 @@ A perl program to generate an excel workbook containing formulae to compute the 
 1. Make sure you have Spreadsheet::XLSX and Excel::Writer::XLSX modules installed along with all other dependencies.
 
 2. Run the following command in the terminal/command prompt :
-		`perl floydWarshall.pl <excel_filename> <number of vertices in the graph>`
-
+		`perl floydWarshall.pl <excel_filename> <number of vertices in the graph>`  
+		or  
+		`perl floydWarshall.pl <excel_filename> <number of vertices in the graph> floydMacro.bin floydMacroHelper.pl`
 3. The format of the excel_file should be as follows:
 		Cells B(i+1), B(i+2), B(i+3) ... should contain the weight of the path from vertex "1" to the vertex "i". Similarly, cells C(i+1), C(i+2), C(i+3) ... should contain the weight of the path from vertex "2" to the vertex "i". And so on...The entire graph is represented in this particular manner. See the file example_input.xlsx for a sample input.
+4. In case you added a macro, the second sheet will provide an interactive way to see jump through the steps.
 
 **Result:**
 
