@@ -318,7 +318,7 @@ SCRIPT TO AUGMENT PERL CODE TO GENERATE EXCEL IMPLEMENTATION OF CODE
 This script takes a file as an argument and augments it.
 
 Consider the following example.
-	
+
 =over 12
 
 =item C<perl perlToExcel.pl example.pl output.pl>
