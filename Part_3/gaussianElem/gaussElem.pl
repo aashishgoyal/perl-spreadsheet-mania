@@ -2,7 +2,7 @@ use Data::Dumper;
 	
 	#the algorithm ahead is essentially designed for square matrix
 	my @p; #dim:p[5][5]
-	my @p = ([11,11,12,6,8],
+	@p = ([11,11,12,6,8],
 			[5,14,13,32,4],
 			[8,6,7,12,19],
 			[13,7,13,5,24],
